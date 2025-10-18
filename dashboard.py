@@ -9,17 +9,16 @@ import cv2
 # ==========================
 # Load Models
 # ==========================
-import os
 
 @st.cache_resource
-def load_models():
-    base_path = os.path.dirname(__file__)  # lokasi file dashboard.py
-    yolo_path = os.path.join(base_path, "model", "Aditya Arrahman_Laporan 4.pt")
-    classifier_path = os.path.join(base_path, "model", "Aditya Arrahman_Laporan_2.h5")
-    
-    yolo_model = YOLO(yolo_path)
-    classifier = tf.keras.models.load_model(classifier_path)
-    return yolo_model, classifier
+def load_models(): 
+    yolo_model = YOLO("Aditya Arrahman_Laporan 4.pt") 
+    # Model deteksi objek 
+classifier = tf.keras.models.load_model("Aditya Arrahman_Laporan_2.h5") 
+# Model klasifikasi 
+return yolo_model, classifier 
+
+yolo_model, classifier = load_models()
 
 # ==========================
 # UI
