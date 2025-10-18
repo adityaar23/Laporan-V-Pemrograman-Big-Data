@@ -12,9 +12,9 @@ import cv2
 
 @st.cache_resource
 def load_models(): 
-    yolo_model = YOLO("Aditya Arrahman_Laporan 4.pt") 
+    yolo_model = YOLO("model/Aditya Arrahman_Laporan 4.pt") 
     # Model deteksi objek 
-classifier = tf.keras.models.load_model("Aditya Arrahman_Laporan_2.h5") 
+classifier = tf.keras.models.load_model("model/Aditya Arrahman_Laporan_2.h5") 
 # Model klasifikasi 
 return yolo_model, classifier 
 
