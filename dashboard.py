@@ -1,55 +1,200 @@
 import streamlit as st
+from PIL import Image
+import tensorflow as tf
+from tensorflow.keras.preprocessing import image
+import numpy as np
+from ultralytics import YOLO
 
-# ===================== CONFIG =====================
-st.set_page_config(
-    page_title="Dashboard Klasifikasi & Deteksi",
-    layout="wide"
-)
+# =====================
+# PAGE CONFIG
+# =====================
+st.set_page_config(page_title="Dashboard Pengolahan Citra", page_icon="📊", layout="wide")
 
-# ===================== SIDEBAR =====================
+# =====================
+# LOAD MODELS
+# =====================
+@st.cache_resource
+def load_models():
+    yolo_model = YOLO("model/Aditya Arrahman_Laporan 4.pt")
+    buah_model = tf.keras.models.load_model("model/Aditya Arrahman_Laporan_2.h5")
+    return yolo_model, buah_model
+
+yolo_model, buah_model = load_models()
+class_names = ["Apel", "Anggur", "Mangga", "Pisang", "Tomat"]
+
+# =====================
+# CUSTOM CSS (warna teks sidebar putih bersih)
+# =====================
+st.markdown("""
+<style>
+/* MAIN BACKGROUND */
+.stApp {
+    background: linear-gradient(to right, #fdfcfb, #e2d1c3);
+    font-family: 'Poppins', sans-serif;
+}
+
+/* SIDEBAR */
+section[data-testid="stSidebar"] {
+    background-color: #1e293b;
+    color: #ffffff;
+}
+
+/* Judul sidebar */
+section[data-testid="stSidebar"] h2 {
+    color: #ffffff !important;
+    text-align: center;
+    font-weight: 700;
+}
+
+/* Label radio (semua teks putih) */
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    transition: color 0.3s ease, border-left 0.3s ease;
+    padding-left: 8px;
+}
+
+/* Warna aktif */
+section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label[data-baseweb="radio"]:has(input[checked]) {
+    color: #fb923c !important; /* oranye terang untuk aktif */
+    font-weight: 600;
+    border-left: 4px solid #fb923c;
+}
+
+/* Hover efek */
+section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label:hover {
+    color: #facc15 !important; /* kuning lembut saat hover */
+}
+
+/* TITLE */
+h1, h2, h3 {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* FEATURE CARD */
+.feature-card {
+    background-color: #fff6ed;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+.feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+}
+
+/* BUTTON */
+.stButton > button {
+    background-color: #fb923c;
+    color: white;
+    border-radius: 10px;
+    font-weight: 600;
+    border: none;
+    transition: 0.3s ease;
+}
+.stButton > button:hover {
+    background-color: #f97316;
+    transform: scale(1.05);
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# =====================
+# SIDEBAR
+# =====================
 with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/706/706164.png", width=80)
+    st.markdown("<h2>Pengolahan Citra</h2>", unsafe_allow_html=True)
+    page = st.radio("Pilih Halaman:", ["Dashboard", "Klasifikasi Buah", "Deteksi Ikan"])
+
+# =====================
+# DASHBOARD
+# =====================
+if page == "Dashboard":
+    st.markdown("<h1 style='text-align:center;'>📊 Dashboard Pengolahan Citra</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-size:18px;'>Gunakan aplikasi ini untuk melakukan klasifikasi buah dan deteksi ikan menggunakan model Machine Learning.</p>", unsafe_allow_html=True)
+
+    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("### 🧭 Panduan Penggunaan")
     st.markdown("""
-    <h2 style='text-align:center;'>Dashboard</h2>
-    """, unsafe_allow_html=True)
+    1. **Klasifikasi Buah 🍎**  
+       Upload gambar buah seperti Apel, Jeruk, Mangga, Pisang, atau Tomat.  
+       Model CNN akan mengenali jenis buah berdasarkan gambar tersebut.
 
-    st.markdown("---")
-    st.markdown("### 📌 Dashboard")
-    st.markdown("### 🖼️ Klasifikasi Gambar")
-    st.markdown("### ✉️ Object Detection")
-    st.markdown("---")
+    2. **Deteksi Ikan 🐟**  
+       Upload gambar ikan (misalnya Ikan Mas Koki).  
+       Model YOLOv8 akan menampilkan posisi ikan dengan kotak deteksi otomatis.
+    """)
 
-    st.image("logo.png", caption="Universitas Syiah Kuala", use_column_width=True)
+    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("### 🔍 Pilih Fitur yang Ingin Digunakan")
+    col1, col2 = st.columns(2, gap="large")
 
-# ===================== MAIN CONTENT =====================
-st.markdown("""
-<h2 style="text-align:center;">
-Dashboard Klasifikasi Gambar Pada Buah Buahan dan Deteksi Objek Terhadap Ikan Hias
-</h2>
-""", unsafe_allow_html=True)
+    with col1:
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>🍎 Klasifikasi Buah</h3>
+            <p>Klasifikasikan jenis buah berdasarkan gambar yang diunggah menggunakan model CNN.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Masuk ke Klasifikasi Buah"):
+            st.session_state.page = "Klasifikasi Buah"
 
-st.write("")
-st.markdown("""
-<p style="text-align:center;">
-Selamat datang di Dashboard Klasifikasi Gambar Pada Buah Buahan dan Deteksi Objek
-Terhadap Ikan Hias. Dashboard ini memiliki dua fitur:
-</p>
-""", unsafe_allow_html=True)
+    with col2:
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>🐟 Deteksi Ikan</h3>
+            <p>Deteksi posisi ikan secara otomatis menggunakan model YOLOv8.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Masuk ke Deteksi Ikan"):
+            st.session_state.page = "Deteksi Ikan"
 
-# ===================== 2 COLUMN FEATURE =====================
-col1, col2 = st.columns([1,1])
+# =====================
+# KLASIFIKASI BUAH
+# =====================
+elif page == "Klasifikasi Buah":
+    st.markdown("<h2 style='text-align:center;'>🍎 Klasifikasi Buah</h2>", unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("Upload gambar buah:", type=["jpg", "png", "jpeg"])
+    if uploaded_file is not None:
+        img = Image.open(uploaded_file)
+        st.image(img, caption="Gambar yang Diunggah", use_container_width=True)
 
-with col1:
-    st.write(" ")
-    st.write(" ")
-    st.markdown("<h3 style='text-align:center;'>🖼️ Klasifikasi Gambar</h3>", unsafe_allow_html=True)
-    st.write(" ")
-    if st.button("Masuk ke Klasifikasi", use_container_width=True):
-        st.switch_page("pages/klasifikasi.py")
+        def klasifikasi_buah(img, model, class_names):
+            img_resized = img.resize((224, 224))
+            img_array = image.img_to_array(img_resized)
+            img_array = np.expand_dims(img_array, axis=0) / 255.0
+            preds = model.predict(img_array)
+            pred_idx = np.argmax(preds, axis=1)[0]
+            pred_label = class_names[pred_idx]
+            conf = preds[0][pred_idx]
+            return pred_label, conf
 
-with col2:
-    st.write(" ")
-    st.write(" ")
-    st.markdown("<h3 style='text-align:center;'>✉️ Object Detection</h3>", unsafe_allow_html=True)
-    st.write(" ")
-    if st.button("Masuk ke Deteksi Objek", use_container_width=True):
-        st.switch_page("pages/deteksi.py")
+        label, conf = klasifikasi_buah(img, buah_model, class_names)
+        st.success(f"Hasil Klasifikasi: **{label}** ({conf*100:.2f}%)")
+
+# =====================
+# DETEKSI IKAN
+# =====================
+elif page == "Deteksi Ikan":
+    st.markdown("<h2 style='text-align:center;'>🐟 Deteksi Ikan</h2>", unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("Upload gambar ikan:", type=["jpg", "png", "jpeg"])
+    if uploaded_file is not None:
+        img = Image.open(uploaded_file)
+        st.image(img, caption="Gambar yang Diunggah", use_container_width=True)
+
+        results = yolo_model.predict(img)
+        result = results[0]
+        annotated_img = result.plot()
+        st.image(annotated_img, caption="Hasil Deteksi", use_container_width=True)
+
+        st.markdown("### Deteksi Ditemukan:")
+        for box in result.boxes:
+            cls = int(box.cls[0])
+            conf = float(box.conf[0])
+            label = yolo_model.names[cls]
+            st.write(f"- **{label}** ({conf*100:.2f}%)")
