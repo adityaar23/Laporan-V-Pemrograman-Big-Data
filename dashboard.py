@@ -20,7 +20,7 @@ def load_models():
     return yolo_model, buah_model
 
 yolo_model, buah_model = load_models()
-class_names = ["Apel", "Anggur", "Mangga", "Pisang", "Tomat"]
+class_names = ["Apel", "Anggur", "Mangga", "Pisang", "Stroberi"]
 
 # =====================
 # CUSTOM CSS (warna teks sidebar putih bersih)
@@ -122,7 +122,7 @@ if page == "Dashboard":
     st.markdown("### 🧭 Panduan Penggunaan")
     st.markdown("""
     1. **Klasifikasi Buah 🍎**  
-       Upload gambar buah seperti Apel, Jeruk, Mangga, Pisang, atau Tomat.  
+       Upload gambar buah seperti Apel, Jeruk, Mangga, Pisang, atau Stroberi.  
        Model CNN akan mengenali jenis buah berdasarkan gambar tersebut.
 
     2. **Deteksi Ikan 🐟**  
